@@ -2,6 +2,8 @@
 #include "util.h"
 #include "constants.h"
 
+#include <iostream>
+
 
 void Board::LoadPosition(Sprite *pieces, string position = "")
 {

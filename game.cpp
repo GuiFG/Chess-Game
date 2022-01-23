@@ -7,8 +7,11 @@ Game::Game()
     dx = 0;
     dy = 0;
     idxPiece = 0;
+    idxDragDrop = -1;
+    idxTaked = -1;
     chessNote = ""; 
     notesPosition = "";
+    newPosition.x = -1; newPosition.y = -1;
 }
 
 void Game::Initialize()
@@ -42,40 +45,50 @@ void Game::HandleInput(RenderWindow &window)
         
         CheckMoveBack(event, pieces, notesPosition);
 
-        int idx = CheckDragAndDrop(event, pieces, positionMouse);
-        if (idx >= 0 && idx < TOTAL_PIECES)
-        {
-            isMove = true;
-            idxPiece = idx;
-            dx = positionMouse.x - pieces[idxPiece].getPosition().x;
-            dy = positionMouse.y - pieces[idxPiece].getPosition().y;
-            oldPosition = pieces[idxPiece].getPosition();
-        }
-        else if (idx == TOTAL_PIECES)
-        {
-            isMove = false;
-            newPosition = Util::CenterPosition(pieces[idxPiece]);						
-            updatePosition = Rules::CheckValidMove(pieces, newPosition, oldPosition, idxPiece);
-        }
+        idxDragDrop = CheckDragAndDrop(event, pieces, positionMouse);
     }
     
 }
 
 void Game::Update()
 {
-    if (updatePosition)
+    if (idxDragDrop >= 0 && idxDragDrop < TOTAL_PIECES)
     {
-        chessNote = Util::PositionToChessNote(oldPosition) 
-                    + Util::PositionToChessNote(newPosition);
-        notesPosition += chessNote + " ";				
-        
-        pieces[idxPiece].setPosition(newPosition);
-        cout << chessNote << endl;
+        isMove = true;
+        idxPiece = idxDragDrop;
+        dx = positionMouse.x - pieces[idxPiece].getPosition().x;
+        dy = positionMouse.y - pieces[idxPiece].getPosition().y;
+        oldPosition = pieces[idxPiece].getPosition();
     }
-    else
-        pieces[idxPiece].setPosition(oldPosition);
-    
+    else if (idxDragDrop == TOTAL_PIECES)
+    {
+        isMove = false;
+        newPosition = Util::CenterPosition(pieces[idxPiece]);	
+        cout << "Update new position " << newPosition.x << " " << newPosition.y << endl;					
+        updatePosition = Rules::CheckValidMove(pieces, newPosition, oldPosition, idxPiece);
 
+        // cout << (updatePosition ? "update position" : "not updated") << endl;
+
+        if (updatePosition)
+        {
+            chessNote = Util::PositionToChessNote(oldPosition) 
+                      + Util::PositionToChessNote(newPosition);
+            notesPosition += chessNote + " ";				
+            
+            pieces[idxPiece].setPosition(newPosition);
+            
+            // cout << chessNote << endl;
+            cout << notesPosition << endl;
+        }
+        else
+        {
+            pieces[idxPiece].setPosition(oldPosition);
+            // cout << "set old position" << endl;
+        }
+
+        idxDragDrop = -1;
+    }
+    
     if (isMove)
         pieces[idxPiece].setPosition(positionMouse.x - dx, positionMouse.y - dy);	
 }

@@ -3,18 +3,25 @@
 #include "constants.h"
 
 
-bool Rules::CheckTakeMove(Sprite *piece, Vector2f newPosition, int idxPieceMove)
+bool Rules::CheckTakeMove(Sprite *pieces, Vector2f newPosition, int idxPieceMove)
 {
 	for (int i = 0; i < TOTAL_PIECES; i++)
 	{	
-		if (piece[i].getPosition() == newPosition)
+		if (pieces[i].getPosition() == newPosition && i != idxPieceMove)
 		{
-			bool isBlack = Util::IsBlack(idxPieceMove);
-			bool color = Util::IsBlack(i);
-				
-			if (isBlack ^ color)
+			bool isBlackPieceMove = Util::IsBlack(idxPieceMove);
+			bool isBlackPieceTaked = Util::IsBlack(i);
+			
+			/*
+			cout << "Idx piece move " << idxPieceMove << endl;
+			cout << "Idx taked " << i << endl;
+			cout << "Piece position: " << piece[i].getPosition().x << " " << piece[i].getPosition().y << endl;
+			cout << "New Position: " << newPosition.x << " " << newPosition.y << endl; */
+
+			if (isBlackPieceMove ^ isBlackPieceTaked)
 			{
-				piece[i].setPosition(-100, -100);
+				// cout << "different colors" << endl;
+				pieces[i].setPosition(-100, -100);
 				return true;
 			}
 			else 
@@ -27,8 +34,8 @@ bool Rules::CheckTakeMove(Sprite *piece, Vector2f newPosition, int idxPieceMove)
 
 vector<Vector2f> Rules::GetLegalMoves(string namePiece, Vector2f actualPosition)
 {
-	cout << "Name Piece: " << namePiece << endl;
-	cout << "Actual position: " << actualPosition.x << " " << actualPosition.y << endl;
+	// cout << "Name Piece: " << namePiece << endl;
+	// cout << "Actual position: " << actualPosition.x << " " << actualPosition.y << endl;
 
 	vector<Vector2f> moves;
 
@@ -41,7 +48,7 @@ bool Rules::IsLegalMove(Sprite *pieces, Vector2f newPosition, int idxPiece)
 
 	vector<Vector2f> legalMoves = GetLegalMoves(namePiece, pieces[idxPiece].getPosition());
 	
-	return legalMoves.size() > 1;
+	return legalMoves.size() >= 0;
 }
 
 bool Rules::CheckValidMove(
@@ -57,12 +64,12 @@ bool Rules::CheckValidMove(
 		return false;
 	
 	valid = IsLegalMove(pieces, newPosition, idxPiece);
-	
-	if (!valid)
-		return false;
 
-	valid = CheckTakeMove(pieces, newPosition, idxPiece);				
-	
+	if (!valid)
+		return false; 
+
+	valid = Rules::CheckTakeMove(pieces, newPosition, idxPiece);	
+
 	return valid;
 }
 

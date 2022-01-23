@@ -32,7 +32,7 @@ class Game
 
         bool isMove, updatePosition;
         float dx, dy;
-        int idxPiece;
+        int idxPiece, idxDragDrop, idxTaked;
         Vector2f oldPosition, newPosition;
         Vector2i positionMouse;
         string chessNote, notesPosition;
